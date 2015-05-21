@@ -1,0 +1,42 @@
+import os
+import swiftclient.client
+
+config = {'user':'sili4695', 
+          'key':'wpfeJ429::sl',
+          'tenant_name':'g2015016',
+          'authurl':'http://smog.uppmax.uu.se:5000/v2.0'}
+conn = swiftclient.client.Connection(auth_version=2, **config)
+
+Listan=[]
+totalsize=0
+(response, obj_list) = conn.get_container('GenomeData')
+for obj in obj_list: 
+    if "GIH" in obj['name']:
+        totalsize+=float(obj['bytes'])
+        Listan.append(obj['name'])
+        
+        #print Listan
+#print str(totalsize) +" Bytes"
+#print str(totalsize/1000)+" KBytes"
+#print str(totalsize/1000/1000) +" MBBytes"
+print str(totalsize/1000/1000/1000) +" GBytes"
+len(Listan)
+
+import time
+
+for i in range(0, 317):
+    
+    
+    start_time = time.time()
+    response, object_body =conn.get_object('GenomeData',Listan[i])
+    print("Done downloading " +Listan[i] +" time: %s seconds " % (time.time() - start_time))
+    start_time = time.time()
+    f = open('/home/ubuntu/GenomeData/'+Listan[i], 'wb')
+    f.write(object_body)
+    f.close()
+    print("Done writing " + Listan[i] +" time: %s seconds " % (time.time() - start_time))
+    
+    
+    putcommand= 'hdfs dfs -put /home/ubuntu/GenomeData/'+Listan[i] + 'GenomeData/'+Listan[i]
+print putcommand
+os.system(putcommand)
