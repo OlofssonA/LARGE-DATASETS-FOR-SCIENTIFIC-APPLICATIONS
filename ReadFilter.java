@@ -71,8 +71,10 @@ public class ReadFilter extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
       final Configuration conf = getConf();
-      conf.set(MyOutputFormat.HEADER_FROM_FILE, "hdfs://host-10-0-100-133.openstacklocal:54310/user/ubuntu/header.bam");
- 
+      //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+      //The path to the header for the output file, make sure this is correctly specified!
+      conf.set(MyOutputFormat.HEADER_FROM_FILE, "/user/ubuntu/header.bam");
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
       final Job job = new Job(conf);
 	  
@@ -129,12 +131,14 @@ final class ReadFilterMapper
 
     {
         final SAMRecord record = rec.get();
+       	//checks if the readlenght is >1000 and if so sends it to the reducer
 		if(Math.abs(record.getInferredInsertSize()) > 1000){
 		    contex.write(new Text(rec.get().getReadName()), rec);
 		}
     }
 }
 
+//The reduer simply makes an output, no reducing takes place.
 final class ReadFilterReducer
         extends org.apache.hadoop.mapreduce.Reducer<Text,SAMRecordWritable, Text,SAMRecordWritable> {
 
